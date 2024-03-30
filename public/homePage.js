@@ -2,14 +2,14 @@
 const logout = new LogoutButton();
 logout.action = () => {
 	ApiConnector.logout((responce) => {
-		if (responce.success === true) {
+		if (responce.success) {
 			location.reload();
 		}
 	})
 };
 
 ApiConnector.current((responce) => {
-	if (responce.success === true) {
+	if (responce.success) {
 		ProfileWidget.showProfile(responce.data)
 	}
 });
@@ -18,7 +18,7 @@ ApiConnector.current((responce) => {
 const ratesBoard = new RatesBoard();
 ratesBoard.action = () => {
 	ApiConnector.getStocks(responce => {
-		if(responce.success === true) {
+		if(responce.success) {
 			ratesBoard.clearTable()
 			ratesBoard.fillTable(responce.data)
 		}
