@@ -25,72 +25,38 @@ ratesBoard.action = () => {
 		})
 }
 ratesBoard.action();
-setInterval(ratesBoard.action(), 60000)
+setInterval(ratesBoard.action, 600);
 
 
 const moneyManager = new MoneyManager();
 moneyManager.addMoneyCallback = (data) => {
-	let success = false
-	if (!data.amount) {
-		moneyManager.setMessage(success, 'Введите сумму')
-		return;
-	}
-	if (!data.currency) {
-		moneyManager.setMessage(success, 'Введите валюту')
-		return;
-	}
-
-	ApiConnector.addMoney(data, ()=>{
-		ProfileWidget.showProfile(data);
-		success = true;
-		moneyManager.setMessage(success, 'Средства зачислены');
+	ApiConnector.addMoney(data, (responce) => {
+		if(!responce.success){
+			return	moneyManager.setMessage(responce.success, responce.error)
+		}
+		ProfileWidget.showProfile(responce.data)
+		moneyManager.setMessage(responce.success, 'операция прошла успешно')
 	});
-	setTimeout(() => location.reload(), 3000) // костыль! а как сделать? без этого id и имя становятся undefined
 };
 
 moneyManager.conversionMoneyCallback = (data) =>{
-	let success = false;
-	if (!data.fromAmount) {
-		moneyManager.setMessage(success, 'Введите сумму')
-		return;
-	}
-	if (!data.fromCurrency) {
-		moneyManager.setMessage(success, 'Введите текущую валюту')
-		return;
-	}
-	if (!data.targetCurrency) {
-		moneyManager.setMessage(success, 'Введите желаемую валюту')
-		return;
-	}
-	ApiConnector.convertMoney(data, ()=>{
-		ProfileWidget.showProfile(data)
-		success = true;
-		moneyManager.setMessage(success, 'операция прошла успешно');
+	ApiConnector.convertMoney(data, (responce)=>{
+		if(!responce.success){
+			return	moneyManager.setMessage(responce.success, responce.error)
+		}
+		ProfileWidget.showProfile(responce.data)
+		moneyManager.setMessage(responce.success, 'операция прошла успешно');
 	})
-	setTimeout(() => location.reload(), 3000)
 }
 
 moneyManager.sendMoneyCallback = (data) => {
-	let success = false;
-
-	if (!data.amount) {
-		moneyManager.setMessage(success, 'Введите сумму')
-		return;
-	}
-	if (!data.currency) {
-		moneyManager.setMessage(success, 'Введите валюту')
-		return;
-	}
-	if (!data.to) {
-		moneyManager.setMessage(success, 'Введите получателя')
-		return;
-	}
-	ApiConnector.transferMoney(data, ()=> {
-		ProfileWidget.showProfile(data)
-		success = true;
-		moneyManager.setMessage(success, 'операция прошла успешно');
+	ApiConnector.transferMoney(data, (responce)=> {
+		if(!responce.success){
+			return	moneyManager.setMessage(responce.success, responce.error)
+		}
+		ProfileWidget.showProfile(responce.data)
+		moneyManager.setMessage(responce.success, 'операция прошла успешно');
 	})
-	setTimeout(() => location.reload(), 3000)
 }
 
 
@@ -103,31 +69,22 @@ const favoritesWidget = new FavoritesWidget();
 			moneyManager.updateUsersList(responce.data);
 		}
 	})
+
 	favoritesWidget.addUserCallback = (data) =>{
-		let success = false;
-		if (!data.id) {
-			favoritesWidget.setMessage(success, 'Введите ID')
-			return;
-		}
-		if (!data.name) {
-			favoritesWidget.setMessage(success, 'Введите имя пользователя')
-			return;
-		}
-		ApiConnector.addUserToFavorites(data, ()=>{
-			success = true;
+		ApiConnector.addUserToFavorites(data, (responce)=>{
+			if(!responce.success){
+				return	favoritesWidget.setMessage(responce.success, responce.error);
+			}
 			favoritesWidget.clearTable();
-			favoritesWidget.fillTable(data);
-			favoritesWidget.setMessage(success, 'Пользователь добавлен');
+			favoritesWidget.fillTable(responce.data);
+			favoritesWidget.setMessage(responce.success, 'Пользователь добавлен');
 		})
 	}
 
 	favoritesWidget.removeUserCallback = (data) =>{
-		let success = false;
-		ApiConnector.removeUserFromFavorites(data, ()=>{
-			console.log(data)
-			success = true;
+		ApiConnector.removeUserFromFavorites(data, (responce)=>{
 			favoritesWidget.clearTable();
-			favoritesWidget.fillTable(data);
-			favoritesWidget.setMessage(success, 'Пользователь удален');
+			favoritesWidget.fillTable(responce.data);
+			favoritesWidget.setMessage(responce.success, 'Пользователь удален');
 		})
 	}
